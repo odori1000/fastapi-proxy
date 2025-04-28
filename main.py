@@ -1,62 +1,70 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 import requests
 
-# FastAPI 앱 생성
+# 확실한 앱 인스턴스 생성
 app = FastAPI(
-    title="네이버 블로그 검색 프록시",
-    description="네이버 블로그 검색 API를 사용한 프록시 서비스",
-    version="0.1.0"
+    title="네이버 블로그 검색 API",
+    description="네이버 블로그 검색을 위한 API 프록시 서비스",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
-# 네이버 API 키
+# 네이버 API 인증 정보
 NAVER_CLIENT_ID = "_MUs39d7RiLsvPw6kEAK"
 NAVER_CLIENT_SECRET = "TO1beTvQkM"
 
-# 테스트용 루트 엔드포인트
-@app.get("/")
+# 루트 경로 정의
+@app.get("/", tags=["기본"])
 async def root():
     """
-    테스트용 루트 엔드포인트
+    기본 환영 메시지를 반환합니다.
     """
-    return {"message": "네이버 블로그 검색 API 프록시가 작동 중입니다."}
+    return {"message": "네이버 블로그 검색 API에 오신 것을 환영합니다!"}
 
-# 블로그 검색 엔드포인트
-@app.get("/blog-search")
+# 블로그 검색 API 엔드포인트
+@app.get("/api/blog-search", tags=["블로그"])
 async def blog_search(
     query: str = Query(..., description="검색할 키워드"),
-    display: int = Query(5, description="검색 결과 개수 (기본값: 5)"),
-    start: int = Query(1, description="검색 시작 위치 (기본값: 1)")
+    display: int = Query(5, ge=1, le=100, description="검색 결과 개수 (1-100)"),
+    start: int = Query(1, ge=1, le=1000, description="검색 시작 위치 (1-1000)")
 ):
     """
-    네이버 블로그를 검색합니다.
+    네이버 블로그 검색 API를 사용하여 블로그 포스트를 검색합니다.
     
-    - **query**: 검색할 키워드 (필수)
-    - **display**: 검색 결과 개수 (기본값: 5)
-    - **start**: 검색 시작 위치 (기본값: 1)
+    - **query**: 검색할 키워드
+    - **display**: 검색 결과 개수 (기본값: 5, 최대 100)
+    - **start**: 검색 시작 위치 (기본값: 1, 최대 1000)
     """
+    # 네이버 API 엔드포인트
     url = "https://openapi.naver.com/v1/search/blog.json"
+    
+    # 헤더 설정
     headers = {
         "X-Naver-Client-Id": NAVER_CLIENT_ID,
         "X-Naver-Client-Secret": NAVER_CLIENT_SECRET
     }
+    
+    # 파라미터 설정
     params = {
         "query": query,
         "display": display,
         "start": start
     }
     
-    # 네이버 API 요청
-    response = requests.get(url, headers=headers, params=params)
-    return response.json()
+    try:
+        # API 요청
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()  # 오류 상태 코드 확인
+        return response.json()
+    except requests.RequestException as e:
+        # 오류 처리
+        raise HTTPException(status_code=500, detail=f"네이버 API 요청 실패: {str(e)}")
 
-# 블로그 검색 상세 정보 엔드포인트
-@app.get("/blog-search/detail")
-async def blog_detail(
-    blog_url: str = Query(..., description="블로그 URL")
-):
+# 헬스 체크 엔드포인트
+@app.get("/health", tags=["시스템"])
+async def health_check():
     """
-    블로그 URL에 대한 상세 정보를 제공합니다.
-    
-    - **blog_url**: 블로그 URL (필수)
+    API 서버의 상태를 확인합니다.
     """
-    return {"message": "블로그 URL 정보", "url": blog_url}
+    return {"status": "healthy"}
