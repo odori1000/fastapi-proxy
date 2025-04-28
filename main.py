@@ -41,8 +41,8 @@ async def blog_search(
     
     # 헤더 설정
     headers = {
-        "X-Naver-Client-Id": NAVER_CLIENT_ID,
-        "X-Naver-Client-Secret": NAVER_CLIENT_SECRET
+        "X-Naver-Client-Id": _MUs39d7RiLsvPw6kEAK,
+        "X-Naver-Client-Secret": TO1beTvQkM
     }
     
     # 파라미터 설정
