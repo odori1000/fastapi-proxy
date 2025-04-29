@@ -13,17 +13,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-NAVER_CLIENT_ID = "여기 실제 ID"
-NAVER_CLIENT_SECRET = "여기 실제 시크릿"
+NAVER_CLIENT_ID = "MUs39d7RiLsvPw6kEAK"
+NAVER_CLIENT_SECRET = "TO1beTvQkM"
 
 @app.get("/search-blog")
 def search_blog(query: str):
     url = "https://openapi.naver.com/v1/search/blog.json"
     headers = {
-        headers = {
-    "X-Naver-Client-Id": "MUs39d7RiLsvPw6kEAK",
-    "X-Naver-Client-Secret": "TO1beTvQkM"
-}
+        "X-Naver-Client-Id": NAVER_CLIENT_ID,
+        "X-Naver-Client-Secret": NAVER_CLIENT_SECRET
     }
     params = {
         "query": query,
