@@ -20,8 +20,8 @@ NAVER_CLIENT_SECRET = "여기 실제 시크릿"
 def search_blog(query: str):
     url = "https://openapi.naver.com/v1/search/blog.json"
     headers = {
-        "X-Naver-Client-Id": NAVER_CLIENT_ID,
-        "X-Naver-Client-Secret": NAVER_CLIENT_SECRET,
+        "X-Naver-Client-Id": _MUs39d7RiLsvPw6kEAK,
+        "X-Naver-Client-Secret": TO1beTvQkM,
     }
     params = {
         "query": query,
